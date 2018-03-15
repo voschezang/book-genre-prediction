@@ -3,6 +3,7 @@ __pycache__/
 *$py.class
 
 results/*
+datasets/*
 .idea/
 .ipynb_checkpoints/
 
