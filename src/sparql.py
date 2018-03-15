@@ -7,6 +7,7 @@ e.g. search dbpedia for the birthdates of authors
 """
 
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, N3, RDF
+from slugify import slugify
 import json
 
 # An example query
@@ -25,13 +26,21 @@ LIMIT 3
 """
 
 
-def search(query):
-    # results :: dict
-    sparql = SPARQLWrapper("http://dbpedia.org/sparql")
+def search(query, endpoint="http://dbpedia.org/sparql"):
+    # result :: ('ok', (keys, [info_dict]) ) | ('error', 'http_error')
+    sparql = SPARQLWrapper(endpoint)
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-    return list_results(results)
+    try:
+        # data may be an empty list
+        data = sparql.query().convert()
+        keys, data_ = list_results(data)
+        result = ('ok', (keys, data_))
+    except:
+        # assume an http-error has occurred
+        result = ('error', 'http_error')
+
+    return result
 
 
 def book_info(title='The_Wonderful_Wizard_of_Oz'):
@@ -43,15 +52,15 @@ PREFIX dbo: <http://dbpedia.org/ontology/>
 
 SELECT ?book ?title ?author ?genre ?date ?birthDate
 WHERE {
-    ?book rdf:type dbo:Book;
-        dbo:author ?author.
+    ?book rdf:type dbo:Book.
     FILTER regex(str(?book), "%s").
+    OPTIONAL {?book dbo:author ?author. }
     OPTIONAL { ?book dbo:releaseDate ?date. }
     OPTIONAL { ?book dbo:literaryGenre ?genre. }
     OPTIONAL { ?author dbo:birthDate ?birthDate. }
 }
 LIMIT 3
-""" % title
+""" % sanitize(title)
     return search(query)
 
 
@@ -70,8 +79,17 @@ WHERE {
     ?author dbo:birthDate ?date .
 }
 LIMIT 10
-""" % name
+""" % sanitize(name)
     return search(query)
+
+
+def sanitize(string):
+    # TODO slugify makes the string lowercase
+    # string = slugify(string, separator='_')
+    string = string.replace(' ', '_')
+    string = string.strip('"`')
+    string = string.strip("'")
+    return string[0].upper() + string[1:]
 
 
 def list_results(query_results):
