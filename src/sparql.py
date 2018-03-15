@@ -1,7 +1,11 @@
 """ Functions that run SPARQL querys
 e.g. search dbpedia for the birthdates of authors
 
+2 sidenotes:
+- It is possible for queries to return multiple (and/or duplicate) results.
+- It is possible that not all results contain values for every key (NA values).
 """
+
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, N3, RDF
 import json
 
@@ -12,9 +16,9 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dbpedia: <http://dbpedia.org/resource/>
 PREFIX ontology: <http://dbpedia.org/ontology/>
 
-SELECT distinct ?s  ?author
+SELECT distinct ?book  ?author
 WHERE {
-?s rdf:type ontology:Book;
+?book rdf:type ontology:Book;
   ontology:author ?author .
 }
 LIMIT 3
@@ -27,7 +31,7 @@ def search(query):
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
-    return results
+    return list_results(results)
 
 
 def book_info(title='The_Wonderful_Wizard_of_Oz'):
@@ -68,3 +72,15 @@ WHERE {
 LIMIT 10
 """ % name
     return search(query)
+
+
+def list_results(query_results):
+    """
+    keys :: [key]
+     = all possible keys. (Not all results will contain all keys).
+    results :: [dict]
+     = list of results
+    """
+    keys = query_results['head']['vars']
+    results = query_results['results']['bindings']
+    return keys, results
