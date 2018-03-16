@@ -84,7 +84,7 @@ LIMIT 10
 
 
 def sanitize(string):
-    # TODO slugify makes the string lowercase
+    # TODO, prevent: slugify makes the string lowercase
     # string = slugify(string, separator='_')
     string = string.replace(' ', '_')
     string = string.strip('"`')
