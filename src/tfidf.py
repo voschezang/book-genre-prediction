@@ -25,7 +25,6 @@ def create_index(directory, book_list):
             text = open(os.path.join(directory, filename), 'r', errors='replace').read()
             for term in tokenize(text):
                 index[term].add(filename)
-
     return index
 
 
@@ -55,16 +54,20 @@ def idf(t, book_list, index):
 
 
 def tfidf(t, d, book_list, index, tf_matrix):
-    return tf(t, d, tf_matrix) * idf(t, book_list, index)
+    score = (10 * (tf(t, d, tf_matrix)) * (10 * idf(t, book_list, index)))
+    return score
 
 
 def perform_tfidf(directory, book_list, index, tf_matrix):
-    tfidf_dict = defaultdict
+    tfidf_dict = {}
     for filename in book_list:
         if filename.endswith(".txt"):
+            # text = open(os.path.join(directory, filename), 'r', errors='replace').read()
             text = open(os.path.join(directory, filename), 'r', errors='replace').read()
-            for term in tokenize(text):
-                    tfidf_score = (tfidf(term, filename, book_list, index, tf_matrix))
-                    tfidf_dict[term] = tfidf_score
+
+            tokenized = tokenize(text)
+            for term in tokenized:
+                    score = tfidf(term, filename, book_list, index, tf_matrix)
+                    tfidf_dict[term] = score
 
     return tfidf_dict
