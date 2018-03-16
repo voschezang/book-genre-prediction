@@ -2,6 +2,7 @@
 """
 
 dataset_dir = '../datasets/'
+src_dir = '../src/'
 
 raw_img_dir = 'raw'
 train_dir = 'train'
