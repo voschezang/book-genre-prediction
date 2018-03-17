@@ -4,7 +4,6 @@ __pycache__/
 
 results/*
 datasets/*
-data/*
 .idea/
 .ipynb_checkpoints/
 
