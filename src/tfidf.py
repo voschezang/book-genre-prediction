@@ -22,7 +22,9 @@ def create_index(directory, book_list):
 
     for filename in book_list:
         if filename.endswith(".txt"):
-            text = open(os.path.join(directory, filename), 'r', errors='replace').read()
+            text = open(
+                os.path.join(directory, filename), 'r',
+                errors='replace').read()
             for term in tokenize(text):
                 index[term].add(filename)
     return index
@@ -33,14 +35,16 @@ def create_tf_matrix(directory, book_list):
 
     for filename in book_list:
         if filename.endswith(".txt"):
-            text = open(os.path.join(directory, filename), 'r', errors='replace').read()
+            text = open(
+                os.path.join(directory, filename), 'r',
+                errors='replace').read()
             tokens = tokenize(text)
             tf_matrix[filename] = Counter(tokens)
 
     return tf_matrix
 
 
-def tf(t,d, tf_matrix):
+def tf(t, d, tf_matrix):
     return float(tf_matrix[d][t])
 
 
@@ -63,11 +67,13 @@ def perform_tfidf(directory, book_list, index, tf_matrix):
     for filename in book_list:
         if filename.endswith(".txt"):
             # text = open(os.path.join(directory, filename), 'r', errors='replace').read()
-            text = open(os.path.join(directory, filename), 'r', errors='replace').read()
+            text = open(
+                os.path.join(directory, filename), 'r',
+                errors='replace').read()
 
             tokenized = tokenize(text)
             for term in tokenized:
-                    score = tfidf(term, filename, book_list, index, tf_matrix)
-                    tfidf_dict[term] = score
+                score = tfidf(term, filename, book_list, index, tf_matrix)
+                tfidf_dict[term] = score
 
     return tfidf_dict
