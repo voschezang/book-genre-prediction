@@ -1,6 +1,9 @@
 start:
 	jupyter notebook src/
 
+logs:
+	tensorboard --logdir=/tmp/ml_model
+
 install:
 	pip3 install -r requirements.txt
 
