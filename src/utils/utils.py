@@ -18,6 +18,9 @@ def stem(filename='aed285c5eae61e3e7ddb5f78e6a7a977.jpg'):
 
 
 def sanitize(string):
+    string = re.sub('"', '', string)
+    string = re.sub('`', '', string)
+    string = re.sub("'", '', string)
     string = replace_special_chars(string, '_')
     return string[0].upper() + string[1:]
 
