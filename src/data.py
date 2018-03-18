@@ -167,3 +167,7 @@ def dict_label_to_index(labels):
 def get_label(name='123.txt', labels=[]):
     # labels :: pandas.df :: { id: breed }
     return labels[name][0]
+
+
+def reduce_genres(genres=['']):
+    return set([utils.normalize_string(g) for g in genres])
