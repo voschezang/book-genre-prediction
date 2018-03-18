@@ -1,7 +1,7 @@
 """ Functions that are specific to our dataset
 """
-import pandas
-import os, sklearn, skimage, skimage.io, pandas, numpy as np
+import pandas, collections, os
+import sklearn, skimage, skimage.io, pandas, numpy as np
 import keras.utils
 # from sklearn import svm
 # from skimage import data, io, filters
@@ -11,7 +11,7 @@ from utils import utils
 import config, tfidf
 
 Dataset = namedtuple('Dataset', [
-    'info', 'labels', 'genres', 'book_sentiment_words_list',
+    'info', 'labels', 'genres', 'book_sentiment_words_list', 'label_dataset',
     'sentiment_dataset'
 ])
 
@@ -24,6 +24,8 @@ print(""" Dataset :: namedtuple(
   'info': pandas.df
   'labels': pandas.df('filename.txt': 'genre')
   'genres': ['genre'] # unique genres
+  'label_dataset': SubDataset
+  'sentiment_dataset': SubDataset
   'book_sentiment_words_list': ['filename']
 
  SubDataset :: namedtuple(
@@ -54,6 +56,8 @@ def init_dataset():
     labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
     genres = read_unique_genres()
 
+    label_dataset = init_sub_dataset(genres)
+
     # lists of files
     book_sentiment_words_list = os.listdir(
         config.dataset_dir + 'output/sentiment_word_texts')
@@ -65,7 +69,7 @@ def init_dataset():
 
     # return data as a namedtuple
     return Dataset(info, labels, genres, book_sentiment_words_list,
-                   sentiment_dataset)
+                   label_dataset, sentiment_dataset)
 
 
 def init_sub_dataset(word_list):
@@ -108,13 +112,39 @@ def read_unique_genres():
     return [genre.strip('\n') for genre in genres_file.readlines()]
 
 
-def labels_to_vectors(dataset, train_labels, test_labels):
+def labels_to_vectors(sub_dataset, train_labels, test_labels):
     # dataset contains dicts to convert
-    train = textlabels_to_numerical(dataset, train_labels)
-    test = textlabels_to_numerical(dataset, test_labels)
+    train = textlabels_to_numerical(sub_dataset, train_labels)
+    test = textlabels_to_numerical(sub_dataset, test_labels)
     y_train = keras.utils.to_categorical(train)
     y_test = keras.utils.to_categorical(test)
     return y_train, y_test
+
+
+def tokenlist_to_vector(tokens, sub_dataset):
+    # TODO depending on len(tokens)
+    selected_words = list(sub_dataset.dict_label_to_index.keys())
+    n = len(selected_words)
+    if n < 1:
+        return None
+    counter = collections.Counter(tokens)
+    vector = np.zeros([n])
+    for i, word in enumerate(selected_words):
+        try:
+            x = counter[word]
+            vector[i] = (x / float(n))**0.5
+        except:  # KeyError
+            continue
+    return vector
+
+
+def polarization_scores_to_vector(dataset, name='706.txt'):
+    row = dataset.info.loc[dataset.info['filename'] == name]
+    keys = ['pos score', 'neg score', 'neu score', 'comp score']
+    v = []
+    for key in keys:
+        v.append(row[key].item())
+    return np.array(v)
 
 
 def textlabels_to_numerical(dataset, labels):
