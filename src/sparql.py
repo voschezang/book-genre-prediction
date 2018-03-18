@@ -8,7 +8,7 @@ e.g. search dbpedia for the birthdates of authors
 
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, N3, RDF
 from slugify import slugify
-import json
+import json, re
 
 # An example query
 query = """
@@ -86,11 +86,16 @@ LIMIT 10
 def sanitize(string):
     # TODO, prevent: slugify makes the string lowercase
     # string = slugify(string, separator='_')
-    string = str(string)
-    string = string.replace(' ', '_')
-    string = string.strip('"`')
-    string = string.strip("'")
+    # string = str(string)
+    # string = string.replace(' ', '_')
+    # string = string.strip('"`')
+    # string = string.strip("'")
+    string = replace_special_chars(string, '_')
     return string[0].upper() + string[1:]
+
+
+def replace_special_chars(string, char='_'):
+    return re.sub('[^A-Za-z0-9]+', char, string)
 
 
 def list_results(query_results):

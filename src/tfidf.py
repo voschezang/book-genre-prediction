@@ -31,6 +31,7 @@ def create_index(directory, book_list):
 
 
 def create_tf_matrix(directory, book_list):
+    # tf_matrix :: {'book': {'word': count} }
     tf_matrix = defaultdict(Counter)
 
     for filename in book_list:
@@ -77,3 +78,12 @@ def perform_tfidf(directory, book_list, index, tf_matrix):
                 tfidf_dict[term] = score
 
     return tfidf_dict
+
+
+# def
+
+# data = set(tokens van boeken uit genre x)
+# for term in data:
+#     tf = frequency of term
+#     df = log-dinges van term in alle documenten die niet bij genre x horen
+#     tfidf = tf / df

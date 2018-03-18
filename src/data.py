@@ -10,13 +10,14 @@ from collections import namedtuple
 import config
 
 Dataset = namedtuple('Dataset',
-                     ['info', 'labels', 'book_sentiment_words_list'])
+                     ['info', 'labels', 'genres', 'book_sentiment_words_list'])
 
 # ['train', 'test', 'labels', 'dict_index_to_label', 'dict_label_to_index'])
 
 print(""" Dataset :: namedtuple(
   'info': pandas.df
   'labels': pandas.df('filename.txt': 'genre')
+  'genres': ['genre'] # unique genres
   'book_sentiment_words_list': ['filename']
 """)
 
@@ -41,6 +42,7 @@ def init_dataset():
 
     info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
     labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
+    genres = read_unique_genres()
 
     # lists of files
     book_sentiment_words_list = os.listdir(
@@ -54,7 +56,7 @@ def init_dataset():
     # return data as a namedtuple
     # return Dataset(train, test, labels, dict_index_to_label_,
     #                dict_label_to_index_)
-    return Dataset(info, labels, book_sentiment_words_list)
+    return Dataset(info, labels, genres, book_sentiment_words_list)
 
 
 def extract_genres(info, book_list):
@@ -65,6 +67,11 @@ def extract_genres(info, book_list):
         genre = book.genre.item()
         labels[str(filename)] = [genre]
     return labels
+
+
+def read_unique_genres():
+    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
+    return [genre.strip('\n') for genre in genres_file.readlines()]
 
 
 def labels_to_vectors(dataset, train_labels, test_labels):
