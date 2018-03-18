@@ -6,7 +6,7 @@ import keras.utils
 # from sklearn import svm
 # from skimage import data, io, filters
 from collections import namedtuple
-from utils import utils
+from utils import utils, io
 
 import config, tfidf
 
@@ -41,11 +41,6 @@ print(""" Dataset :: namedtuple(
 #     """)
 
 
-def read_unique_genres():
-    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
-    return [genre.strip('\n') for genre in genres_file.readlines()]
-
-
 def init_dataset():
     # alt: use utils.Dataset
     # labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
@@ -54,7 +49,7 @@ def init_dataset():
 
     info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
     labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
-    genres = read_unique_genres()
+    genres = io.read_unique_genres()
 
     label_dataset = init_sub_dataset(genres)
 
@@ -93,23 +88,15 @@ def extract_genres(info, book_list):
 
 def extract_all(dataset, names):
     # Collect test data (+labels)
+    dirname = config.dataset_dir + 'output/sentiment_word_texts/'
     x = []
     y = []
     for name in names:
         dataset.labels
-        text = open(
-            config.dataset_dir + 'output/sentiment_word_texts/' + name,
-            'r',
-            errors='replace').read()
-        tokenized = tfidf.tokenize(text)
-        x.append(tokenized)
+        tokenized = io.read_book(dirname, name)
+        x.append((name, tokenized))
         y.append(get_label(name, dataset.labels))
     return x, y
-
-
-def read_unique_genres():
-    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
-    return [genre.strip('\n') for genre in genres_file.readlines()]
 
 
 def labels_to_vectors(sub_dataset, train_labels, test_labels):

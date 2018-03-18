@@ -2,6 +2,21 @@
 """
 import pandas, os, config
 
+import tfidf, config
+
+
+def read_book(dirname, filename):
+    if not dirname[-1] == '/':
+        dirname += '/'
+    text = open(dirname + filename, 'r', errors='replace').read()
+    tokenized = tfidf.tokenize(text)
+    return tokenized
+
+
+def read_unique_genres():
+    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
+    return [genre.strip('\n') for genre in genres_file.readlines()]
+
 
 def print_dict(dirname="", d={}, name="text"):
     if not dirname == "":
