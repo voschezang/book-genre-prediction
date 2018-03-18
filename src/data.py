@@ -6,11 +6,17 @@ import keras.utils
 # from sklearn import svm
 # from skimage import data, io, filters
 from collections import namedtuple
+from utils import utils
 
-import config
+import config, tfidf
 
-Dataset = namedtuple('Dataset',
-                     ['info', 'labels', 'genres', 'book_sentiment_words_list'])
+Dataset = namedtuple('Dataset', [
+    'info', 'labels', 'genres', 'book_sentiment_words_list',
+    'sentiment_dataset'
+])
+
+SubDataset = namedtuple('SubDataset',
+                        ['dict_index_to_label', 'dict_label_to_index'])
 
 # ['train', 'test', 'labels', 'dict_index_to_label', 'dict_label_to_index'])
 
@@ -19,6 +25,10 @@ print(""" Dataset :: namedtuple(
   'labels': pandas.df('filename.txt': 'genre')
   'genres': ['genre'] # unique genres
   'book_sentiment_words_list': ['filename']
+
+ SubDataset :: namedtuple(
+   'dict_index_to_label' = dict to convert label_index -> label_name
+   'dict_label_to_index'= dict to convert label_name -> label_index
 """)
 
 #     ['train' = ['img_name']
@@ -48,15 +58,23 @@ def init_dataset():
     book_sentiment_words_list = os.listdir(
         config.dataset_dir + 'output/sentiment_word_texts')
 
+    # feature selection
+    # 1. tfidf on sentiment words (most important sentiment words that define genres)
+    sentiment_words = ['a', 'b', 'c']  # readfile('sentiment_words.csv')
+    sentiment_dataset = init_sub_dataset(sentiment_words)
+
+    # return data as a namedtuple
+    return Dataset(info, labels, genres, book_sentiment_words_list,
+                   sentiment_dataset)
+
+
+def init_sub_dataset(word_list):
     # create a label dicts to convert labels to numerical data and vice versa
     # the order is arbitrary, as long as we can convert them back to the original classnames
     # unique_labels = set(labels['breed'])
-    # dict_index_to_label_ = dict_index_to_label(unique_labels)
-    # dict_label_to_index_ = dict_label_to_index(unique_labels)
-    # return data as a namedtuple
-    # return Dataset(train, test, labels, dict_index_to_label_,
-    #                dict_label_to_index_)
-    return Dataset(info, labels, genres, book_sentiment_words_list)
+    dict_index_to_label_ = dict_index_to_label(word_list)
+    dict_label_to_index_ = dict_label_to_index(word_list)
+    return SubDataset(dict_index_to_label_, dict_label_to_index_)
 
 
 def extract_genres(info, book_list):
@@ -67,6 +85,22 @@ def extract_genres(info, book_list):
         genre = book.genre.item()
         labels[str(filename)] = [genre]
     return labels
+
+
+def extract_all(dataset, names):
+    # Collect test data (+labels)
+    x = []
+    y = []
+    for name in names:
+        dataset.labels
+        text = open(
+            config.dataset_dir + 'output/sentiment_word_texts/' + name,
+            'r',
+            errors='replace').read()
+        tokenized = tfidf.tokenize(text)
+        x.append(tokenized)
+        y.append(get_label(name, dataset.labels))
+    return x, y
 
 
 def read_unique_genres():
@@ -103,8 +137,6 @@ def dict_label_to_index(labels):
     return {k: v for v, k in enumerate(unique_labels)}
 
 
-def get_label(img_name='aed285c5eae61e3e7ddb5f78e6a7a977.jpg', labels=[]):
+def get_label(name='123.txt', labels=[]):
     # labels :: pandas.df :: { id: breed }
-    # index_dict :: { value: index } :: { breed: int }
-    label = labels.loc[labels['id'] == utils.stem(img_name)]
-    return label.breed.item()
+    return labels[name][0]
