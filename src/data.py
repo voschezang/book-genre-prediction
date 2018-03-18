@@ -9,33 +9,62 @@ from collections import namedtuple
 
 import config
 
-Dataset = namedtuple(
-    'Dataset',
-    ['train', 'test', 'labels', 'dict_index_to_label', 'dict_label_to_index'])
+Dataset = namedtuple('Dataset',
+                     ['info', 'labels', 'book_sentiment_words_list'])
+
+# ['train', 'test', 'labels', 'dict_index_to_label', 'dict_label_to_index'])
 
 print(""" Dataset :: namedtuple(
-    ['train' = ['img_name']
-    , 'test' = ['img_name']
-    , 'labels' = pandas.df('img_name','breed')
-    , 'dict_index_to_label' = dict to convert label_index -> label_name
-    , 'dict_label_to_index'= dict to convert label_name -> label_index
-    """)
+  'info': pandas.df
+  'labels': pandas.df('filename.txt': 'genre')
+  'book_sentiment_words_list': ['filename']
+""")
+
+#     ['train' = ['img_name']
+#     , 'test' = ['img_name']
+#     , 'labels' = pandas.df('img_name','breed')
+#     , 'dict_index_to_label' = dict to convert label_index -> label_name
+#     , 'dict_label_to_index'= dict to convert label_name -> label_index
+#     """)
+
+
+def read_unique_genres():
+    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
+    return [genre.strip('\n') for genre in genres_file.readlines()]
 
 
 def init_dataset():
     # alt: use utils.Dataset
+    # labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
+    # train = os.listdir(config.dataset_dir + 'train/')
+    # test = os.listdir(config.dataset_dir + 'test/')
+
+    info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
     labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
-    train = os.listdir(config.dataset_dir + 'train/')
-    test = os.listdir(config.dataset_dir + 'test/')
+
+    # lists of files
+    book_sentiment_words_list = os.listdir(
+        config.dataset_dir + 'output/sentiment_word_texts')
 
     # create a label dicts to convert labels to numerical data and vice versa
     # the order is arbitrary, as long as we can convert them back to the original classnames
-    unique_labels = set(labels['breed'])
-    dict_index_to_label_ = dict_index_to_label(unique_labels)
-    dict_label_to_index_ = dict_label_to_index(unique_labels)
+    # unique_labels = set(labels['breed'])
+    # dict_index_to_label_ = dict_index_to_label(unique_labels)
+    # dict_label_to_index_ = dict_label_to_index(unique_labels)
     # return data as a namedtuple
-    return Dataset(train, test, labels, dict_index_to_label_,
-                   dict_label_to_index_)
+    # return Dataset(train, test, labels, dict_index_to_label_,
+    #                dict_label_to_index_)
+    return Dataset(info, labels, book_sentiment_words_list)
+
+
+def extract_genres(info, book_list):
+    labels = {}  # {bookname: [genre]}, with max 1 genre
+    for filename in book_list[:]:
+        # name = filename.split('.')[0]
+        book = info.loc[info['filename'] == filename]
+        genre = book.genre.item()
+        labels[str(filename)] = [genre]
+    return labels
 
 
 def labels_to_vectors(dataset, train_labels, test_labels):
