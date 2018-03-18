@@ -1,16 +1,22 @@
 """ Functions that are specific to our dataset
 """
-import pandas
-import os, sklearn, skimage, skimage.io, pandas, numpy as np
+import pandas, collections, os
+import sklearn, skimage, skimage.io, pandas, numpy as np
 import keras.utils
 # from sklearn import svm
 # from skimage import data, io, filters
 from collections import namedtuple
+from utils import utils, io
 
-import config
+import config, tfidf
 
-Dataset = namedtuple('Dataset',
-                     ['info', 'labels', 'genres', 'book_sentiment_words_list'])
+Dataset = namedtuple('Dataset', [
+    'info', 'labels', 'genres', 'book_sentiment_words_list', 'label_dataset',
+    'sentiment_dataset'
+])
+
+SubDataset = namedtuple('SubDataset',
+                        ['dict_index_to_label', 'dict_label_to_index'])
 
 # ['train', 'test', 'labels', 'dict_index_to_label', 'dict_label_to_index'])
 
@@ -18,7 +24,13 @@ print(""" Dataset :: namedtuple(
   'info': pandas.df
   'labels': pandas.df('filename.txt': 'genre')
   'genres': ['genre'] # unique genres
+  'label_dataset': SubDataset
+  'sentiment_dataset': SubDataset
   'book_sentiment_words_list': ['filename']
+
+ SubDataset :: namedtuple(
+   'dict_index_to_label' = dict to convert label_index -> label_name
+   'dict_label_to_index'= dict to convert label_name -> label_index
 """)
 
 #     ['train' = ['img_name']
@@ -29,11 +41,6 @@ print(""" Dataset :: namedtuple(
 #     """)
 
 
-def read_unique_genres():
-    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
-    return [genre.strip('\n') for genre in genres_file.readlines()]
-
-
 def init_dataset():
     # alt: use utils.Dataset
     # labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
@@ -42,21 +49,31 @@ def init_dataset():
 
     info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
     labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
-    genres = read_unique_genres()
+    genres = io.read_unique_genres()
+
+    label_dataset = init_sub_dataset(genres)
 
     # lists of files
     book_sentiment_words_list = os.listdir(
         config.dataset_dir + 'output/sentiment_word_texts')
 
+    # feature selection
+    # 1. tfidf on sentiment words (most important sentiment words that define genres)
+    sentiment_words = ['a', 'b', 'c']  # readfile('sentiment_words.csv')
+    sentiment_dataset = init_sub_dataset(sentiment_words)
+
+    # return data as a namedtuple
+    return Dataset(info, labels, genres, book_sentiment_words_list,
+                   label_dataset, sentiment_dataset)
+
+
+def init_sub_dataset(word_list):
     # create a label dicts to convert labels to numerical data and vice versa
     # the order is arbitrary, as long as we can convert them back to the original classnames
     # unique_labels = set(labels['breed'])
-    # dict_index_to_label_ = dict_index_to_label(unique_labels)
-    # dict_label_to_index_ = dict_label_to_index(unique_labels)
-    # return data as a namedtuple
-    # return Dataset(train, test, labels, dict_index_to_label_,
-    #                dict_label_to_index_)
-    return Dataset(info, labels, genres, book_sentiment_words_list)
+    dict_index_to_label_ = dict_index_to_label(word_list)
+    dict_label_to_index_ = dict_label_to_index(word_list)
+    return SubDataset(dict_index_to_label_, dict_label_to_index_)
 
 
 def extract_genres(info, book_list):
@@ -69,18 +86,62 @@ def extract_genres(info, book_list):
     return labels
 
 
-def read_unique_genres():
-    genres_file = open(config.dataset_dir + 'unique_genres.txt', 'r')
-    return [genre.strip('\n') for genre in genres_file.readlines()]
+def extract_all(dataset, names):
+    # Collect test data (+labels)
+    dirname = config.dataset_dir + 'output/sentiment_word_texts/'
+    x = []
+    y = []
+    for name in names:
+        dataset.labels
+        tokenized = io.read_book(dirname, name)
+        x.append((name, tokenized))
+        y.append(get_label(name, dataset.labels))
+    return x, y
 
 
-def labels_to_vectors(dataset, train_labels, test_labels):
+def labels_to_vectors(sub_dataset, train_labels, test_labels):
     # dataset contains dicts to convert
-    train = textlabels_to_numerical(dataset, train_labels)
-    test = textlabels_to_numerical(dataset, test_labels)
+    # TODO make sure that every label is present in both y_test and y_test
+    train = textlabels_to_numerical(sub_dataset, train_labels)
+    test = textlabels_to_numerical(sub_dataset, test_labels)
     y_train = keras.utils.to_categorical(train)
     y_test = keras.utils.to_categorical(test)
     return y_train, y_test
+
+
+def y_to_label_dict(dataset, vector=[]):
+    n = vector.shape[0]
+    result = {}  # :: {label: score}
+    for i in range(n):
+        label = dataset.label_dataset.dict_index_to_label[i]
+        result[label] = vector[i]
+    return result
+
+
+def tokenlist_to_vector(tokens, sub_dataset):
+    # TODO depending on len(tokens)
+    selected_words = list(sub_dataset.dict_label_to_index.keys())
+    n = len(selected_words)
+    if n < 1:
+        return None
+    counter = collections.Counter(tokens)
+    vector = np.zeros([n])
+    for i, word in enumerate(selected_words):
+        try:
+            x = counter[word]
+            vector[i] = (x / float(n))**0.5
+        except:  # KeyError
+            continue
+    return vector
+
+
+def polarization_scores_to_vector(dataset, name='706.txt'):
+    row = dataset.info.loc[dataset.info['filename'] == name]
+    keys = ['pos score', 'neg score', 'neu score', 'comp score']
+    v = []
+    for key in keys:
+        v.append(row[key].item())
+    return np.array(v)
 
 
 def textlabels_to_numerical(dataset, labels):
@@ -103,8 +164,6 @@ def dict_label_to_index(labels):
     return {k: v for v, k in enumerate(unique_labels)}
 
 
-def get_label(img_name='aed285c5eae61e3e7ddb5f78e6a7a977.jpg', labels=[]):
+def get_label(name='123.txt', labels=[]):
     # labels :: pandas.df :: { id: breed }
-    # index_dict :: { value: index } :: { breed: int }
-    label = labels.loc[labels['id'] == utils.stem(img_name)]
-    return label.breed.item()
+    return labels[name][0]
