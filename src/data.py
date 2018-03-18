@@ -200,6 +200,8 @@ def normalize_genre(g='horror'):
 
 
 def reduce_genres(genres=['']):
+    if type(genres) is str:
+        return normalize_genre(genres)
     # g_ = set([utils.normalize_string(g) for g in genres])
     result = []
     for g in genres:
