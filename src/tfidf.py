@@ -17,10 +17,10 @@ def tokenize(text):
     return result
 
 
-def create_index(directory, book_list):
+def create_index(directory):
     index = defaultdict(set)
 
-    for filename in book_list:
+    for filename in os.listdir(directory):
         if filename.endswith(".txt"):
             text = open(
                 os.path.join(directory, filename), 'r',
@@ -30,9 +30,10 @@ def create_index(directory, book_list):
     return index
 
 
-def create_tf_matrix(directory, book_list):
+def create_tf_matrix(directory, book_list, genre):
     # tf_matrix :: {'book': {'word': count} }
     tf_matrix = defaultdict(Counter)
+    total_tokens = []
 
     for filename in book_list:
         if filename.endswith(".txt"):
@@ -40,31 +41,41 @@ def create_tf_matrix(directory, book_list):
                 os.path.join(directory, filename), 'r',
                 errors='replace').read()
             tokens = tokenize(text)
-            tf_matrix[filename] = Counter(tokens)
+            for token in tokens:
+                total_tokens.append(token)
 
-    return tf_matrix
+    tf_matrix[genre] = Counter(total_tokens)
+    genre_tokens = set(total_tokens)
+
+    return tf_matrix, genre_tokens
 
 
-def tf(t, d, tf_matrix):
-    return float(tf_matrix[d][t])
+def tf(t, genre, tf_matrix):
+    return float(tf_matrix[genre][t])
 
 
 def df(t, index):
     return float(len(index[t]))
 
 
-def idf(t, book_list, index):
+def idf(t, directory, index):
+    book_list = []
+    for book in directory:
+        book_list.append(book)
+
     num_documents = float(len(book_list))
-    return log10(num_documents / float(df(t, index)))
+    return log10(1 + (num_documents / float(df(t, index))))
 
 
-def tfidf(t, d, book_list, index, tf_matrix):
-    score = (10 * (tf(t, d, tf_matrix)) * (10 * idf(t, book_list, index)))
+def tfidf(t, genre, directory, index, tf_matrix):
+    score = (tf(t, genre, tf_matrix)) * (idf(t, directory, index))
     return score
 
 
-def perform_tfidf(directory, book_list, index, tf_matrix):
+def perform_tfidf(directory, book_list, index, tf_matrix, genre):
     tfidf_dict = {}
+    total_tokens = []
+
     for filename in book_list:
         if filename.endswith(".txt"):
             # text = open(os.path.join(directory, filename), 'r', errors='replace').read()
@@ -73,9 +84,12 @@ def perform_tfidf(directory, book_list, index, tf_matrix):
                 errors='replace').read()
 
             tokenized = tokenize(text)
-            for term in tokenized:
-                score = tfidf(term, filename, book_list, index, tf_matrix)
-                tfidf_dict[term] = score
+            for token in tokenized:
+                total_tokens.append(token)
+
+    for term in set(total_tokens):
+        score = tfidf(term, genre, directory, index, tf_matrix)
+        tfidf_dict[term] = score
 
     return tfidf_dict
 
