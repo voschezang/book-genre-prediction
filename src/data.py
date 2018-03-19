@@ -167,3 +167,44 @@ def dict_label_to_index(labels):
 def get_label(name='123.txt', labels=[]):
     # labels :: pandas.df :: { id: breed }
     return labels[name][0]
+
+
+def normalize_genre(g='horror'):
+    # remove keywords such as 'fiction'
+    unused_words = ['fiction', 'novel', 'literature']
+    known_genres = [
+        'children', 'christian', 'fantasi', 'histor', 'horror', 'philosoph',
+        'polit', 'western', 'thriller', 'scienc', 'detective'
+    ]
+    # synonyms and typos (first member is correct)
+    synonyms = [('satire', 'satirical'), ('histor', 'histori'),
+                ('young adult', 'youngadult'), ('fairy tale', 'fairytale'),
+                ('science fiction', 'scienc', 'science')]
+
+    # do not confuse 'science' and 'science fiction'
+    g = g.lower()
+    if g == 'science':
+        return g
+
+    g = utils.normalize_string(g)
+    g = utils.rmv_words(g, unused_words)
+    # remove sub-genres such as 'horror fiction'
+    g = utils.stem_conditionally(g, known_genres)
+    # remove unclassfiable words such as 'fiction
+    g = utils.rmv_words(g, unused_words)
+    # remove synonyms and typos
+    for tuple_ in synonyms:
+        if g in tuple_:
+            g = tuple_[0]
+    return g
+
+
+def reduce_genres(genres=['']):
+    if type(genres) is str:
+        return normalize_genre(genres)
+    # g_ = set([utils.normalize_string(g) for g in genres])
+    result = []
+    for g in genres:
+        g = normalize_genre(g)
+        result.append(g)
+    return set(result)
