@@ -236,15 +236,32 @@ def reduce_genres(genres=['']):
 
 ###### Data analysis
 
+# def analyse_ml_result(dataset, y_test, results, n_best=1):
+#     correct = 0
+#     incorrect = 0
+#     for i, label in enumerate(y_test):
+#         all_, best = decode_y(dataset, results[i], n_best=n_best)
+#         _, label = decode_y(dataset, label, n_best=1)
+#         if label[0] in best:
+#             correct += 1
+#         else:
+#             incorrect += 1
+#     return correct, incorrect
 
-def analyse_ml_result(dataset, y_train, results, n_best=1):
+
+def analyse_ml_result(dataset, y_test, results, n_best=1):
     correct = 0
     incorrect = 0
-    for i, label in enumerate(y_train):
-        all_, best = decode_y(dataset, results[i], n_best=n_best)
-        _, label = decode_y(dataset, label, n_best=1)
-        if label[0] in best:
+    correct_labels = []
+    incorrect_labels = []
+    for i, label in enumerate(y_test):
+        _, best = decode_y(dataset, results[i], n_best=n_best)
+        _, labels = decode_y(dataset, label, n_best=1)
+        label = labels[0]
+        if label in best:
             correct += 1
+            correct_labels.append(label)
         else:
             incorrect += 1
-    return correct, incorrect
+            incorrect_labels.append(label)
+    return correct, incorrect, correct_labels, incorrect_labels

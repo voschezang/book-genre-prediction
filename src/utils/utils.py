@@ -25,6 +25,10 @@ def sanitize(string):
     return string[0].upper() + string[1:]
 
 
+def to_upper(string):
+    return string[0].upper() + string[1:]
+
+
 def replace_special_chars(string, char='_'):
     # keep spaces
     return re.sub('[^A-Za-z0-9]+', char, string)
