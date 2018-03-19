@@ -69,9 +69,18 @@ def rmv_words(text='', words=[]):
     return intersperse(tokens, ' ')
 
 
+def find_first(tokens, stem_list):
+    for token in tokens:
+        if token in stem_list:
+            return [token]
+    return tokens
+
+
 def stem_conditionally(text='', stem_list=['']):
     tokens = text.split(' ')
     if len(tokens) > 1:
-        if tokens[0] in stem_list:
-            tokens = tokens[0]
-    return concat(tokens)
+        tokens = find_first(tokens, stem_list)
+        for token in tokens:
+            if tokens in stem_list:
+                tokens = [tokens[0]]
+    return intersperse(tokens, ' ')

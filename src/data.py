@@ -171,15 +171,19 @@ def get_label(name='123.txt', labels=[]):
 
 def normalize_genre(g='horror'):
     # remove keywords such as 'fiction'
-    unused_words = ['fiction', 'novel', 'literature']
+    unused_words = ['fiction', 'novel', 'literature', 'literatur']
     known_genres = [
-        'children', 'christian', 'fantasi', 'histor', 'horror', 'philosoph',
-        'polit', 'western', 'thriller', 'scienc', 'detective'
+        'children', 'christian', 'fantasi', 'histor', 'horror', 'philosophi',
+        'polit', 'western', 'thriller', 'scienc', 'detective', 'apocalypt'
+        'romanc'
     ]
     # synonyms and typos (first member is correct)
-    synonyms = [('satire', 'satirical'), ('histor', 'histori'),
-                ('young adult', 'youngadult'), ('fairy tale', 'fairytale'),
-                ('science fiction', 'scienc', 'science')]
+    synonyms = [('satire', 'satirical'), ('histor', 'histori'), ('young adult',
+                                                                 'youngadult'),
+                ('fairy tale', 'fairytale'), ('science fiction', 'scienc',
+                                              'science'), ('apocalypt',
+                                                           'postapocalypt'),
+                ('philosophi', 'philosoph'), ('romance', 'romanc', 'romant')]
 
     # do not confuse 'science' and 'science fiction'
     g = g.lower()
@@ -203,8 +207,4 @@ def reduce_genres(genres=['']):
     if type(genres) is str:
         return normalize_genre(genres)
     # g_ = set([utils.normalize_string(g) for g in genres])
-    result = []
-    for g in genres:
-        g = normalize_genre(g)
-        result.append(g)
-    return set(result)
+    return set([normalize_genre(g) for g in genres])
