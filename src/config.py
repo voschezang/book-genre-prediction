@@ -6,10 +6,11 @@ tmp_model_dir = '/tmp/ml_model'  # see Makefile/logs
 dataset_dir = '../datasets/'
 src_dir = '../src/'
 
-raw_img_dir = 'raw'
-train_dir = 'train'
-test_dir = 'test'
+sentiment_words_dir = dataset_dir + 'sentiment_word_texts/'
+info_file = dataset_dir + 'new_final_data.csv'
 
-plot_results_dir = 'results/'
+default_genre_value = 'unknown'
 
-# params['default] = {}
+# verbose
+
+debug_ = False

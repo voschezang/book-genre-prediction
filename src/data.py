@@ -6,8 +6,8 @@ import keras.utils
 # from sklearn import svm
 # from skimage import data, io, filters
 from collections import namedtuple
-from utils import utils, io
 
+from utils import utils, io
 import config, tfidf
 
 Dataset = namedtuple('Dataset', [
@@ -47,19 +47,21 @@ def init_dataset():
     # train = os.listdir(config.dataset_dir + 'train/')
     # test = os.listdir(config.dataset_dir + 'test/')
 
-    info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
+    info = pandas.read_csv(config.info_file)
     labels = pandas.read_csv(config.dataset_dir + 'labels.csv')
-    genres = io.read_unique_genres()
+    genre_list = list(info['genre'])
+    genre_list.append(config.default_genre_value)
+    genres = set(genre_list)
 
     label_dataset = init_sub_dataset(genres)
 
     # lists of files
-    book_sentiment_words_list = os.listdir(
-        config.dataset_dir + 'output/sentiment_word_texts')
+    book_sentiment_words_list = os.listdir(config.sentiment_words_dir)
 
     # feature selection
     # 1. tfidf on sentiment words (most important sentiment words that define genres)
-    sentiment_words = ['a', 'b', 'c']  # readfile('sentiment_words.csv')
+    sentiment_words = io.read_sw_per_genre(
+        amt=1000, dirname='top200_per_genre/')
     sentiment_dataset = init_sub_dataset(sentiment_words)
 
     # return data as a namedtuple
@@ -81,18 +83,21 @@ def extract_genres(info, book_list):
     for filename in book_list[:]:
         # name = filename.split('.')[0]
         book = info.loc[info['filename'] == filename]
-        genre = book.genre.item()
-        labels[str(filename)] = [genre]
+        if book.empty:
+            labels[str(filename)] = config.default_genre_value
+        else:
+            genre = book.genre.item()
+            labels[str(filename)] = [genre]
     return labels
 
 
 def extract_all(dataset, names):
     # Collect test data (+labels)
-    dirname = config.dataset_dir + 'output/sentiment_word_texts/'
+    # TODO use actual dir
+    dirname = config.sentiment_words_dir
     x = []
     y = []
     for name in names:
-        dataset.labels
         tokenized = io.read_book(dirname, name)
         x.append((name, tokenized))
         y.append(get_label(name, dataset.labels))
@@ -107,6 +112,21 @@ def labels_to_vectors(sub_dataset, train_labels, test_labels):
     y_train = keras.utils.to_categorical(train)
     y_test = keras.utils.to_categorical(test)
     return y_train, y_test
+
+
+def decode_y(dataset, vector=[], n_best=1):
+    dict_ = y_to_label_dict(dataset, vector)
+    # best value
+    if n_best == 1:
+        i = vector.argmax()
+        label = dataset.label_dataset.dict_index_to_label[i]
+        return dict_, [label]
+    else:
+        # return n best label predicitions
+        ls = list(dict_.items())
+        ls.sort(key=lambda x: x[1])
+        selected = ls[-1 * n_best:-1]
+        return dict_, [label for label, s_ in selected]
 
 
 def y_to_label_dict(dataset, vector=[]):
@@ -140,7 +160,11 @@ def polarization_scores_to_vector(dataset, name='706.txt'):
     keys = ['pos score', 'neg score', 'neu score', 'comp score']
     v = []
     for key in keys:
-        v.append(row[key].item())
+        if key in row and not row.empty:
+            v.append(row[key].item())
+        else:
+            if config.debug_: print('pol key not found', row)
+            v.append(0)
     return np.array(v)
 
 
@@ -208,3 +232,36 @@ def reduce_genres(genres=['']):
         return normalize_genre(genres)
     # g_ = set([utils.normalize_string(g) for g in genres])
     return set([normalize_genre(g) for g in genres])
+
+
+###### Data analysis
+
+# def analyse_ml_result(dataset, y_test, results, n_best=1):
+#     correct = 0
+#     incorrect = 0
+#     for i, label in enumerate(y_test):
+#         all_, best = decode_y(dataset, results[i], n_best=n_best)
+#         _, label = decode_y(dataset, label, n_best=1)
+#         if label[0] in best:
+#             correct += 1
+#         else:
+#             incorrect += 1
+#     return correct, incorrect
+
+
+def analyse_ml_result(dataset, y_test, results, n_best=1):
+    correct = 0
+    incorrect = 0
+    correct_labels = []
+    incorrect_labels = []
+    for i, label in enumerate(y_test):
+        _, best = decode_y(dataset, results[i], n_best=n_best)
+        _, labels = decode_y(dataset, label, n_best=1)
+        label = labels[0]
+        if label in best:
+            correct += 1
+            correct_labels.append(label)
+        else:
+            incorrect += 1
+            incorrect_labels.append(label)
+    return correct, incorrect, correct_labels, incorrect_labels

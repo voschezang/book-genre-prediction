@@ -18,6 +18,19 @@ def read_unique_genres():
     return [genre.strip('\n') for genre in genres_file.readlines()]
 
 
+def read_sw_per_genre(amt=1000, dirname='top200_per_genre/'):
+    dirname = config.dataset_dir + dirname
+    result = []
+    for file in os.listdir(dirname):
+        if not file == '_DS_Store':
+            text = open(dirname + file, 'r', errors='replace').read()
+            words = text.split('/n')
+            # save n words per file
+            for w in words[:amt]:
+                result.append(w)
+    return set(result)
+
+
 def print_dict(dirname="", d={}, name="text"):
     if not dirname == "":
         dirname += "/"
