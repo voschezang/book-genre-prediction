@@ -1,7 +1,7 @@
 """ Project parameters & config
 """
 
-tmp_model_dir = '/tmp/ml_model'  # see Makefile/logs
+tmp_model_dir = '/tmp/ml_model_books'  # see Makefile/logs
 
 dataset_dir = '../datasets/'
 src_dir = '../src/'

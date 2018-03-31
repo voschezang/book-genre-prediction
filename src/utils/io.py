@@ -8,9 +8,25 @@ import tfidf, config
 def read_book(dirname, filename):
     if not dirname[-1] == '/':
         dirname += '/'
-    text = open(dirname + filename, 'r', errors='replace').read()
+    # text = open(dirname + filename, 'r', errors='replace').read()
+    # tokenized = tfidf.tokenize(text)
+    return read_book2(dirname + filename)
+
+
+def read_book2(filename):
+    with open(filename, 'r', errors='replace') as book:
+        text = book.read()
+    # text = open(filename, 'r', errors='replace').read()
     tokenized = tfidf.tokenize(text)
     return tokenized
+
+
+def read_book3(filename):
+    with open(filename, 'r', errors='replace') as book:
+        text = book.read()
+        lines = book.readlines()
+    tokenized = tfidf.tokenize(text)
+    return tokenized, lines
 
 
 def read_unique_genres():

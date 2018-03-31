@@ -3,8 +3,6 @@
 import pandas, collections, os
 import sklearn, skimage, skimage.io, pandas, numpy as np
 import keras.utils
-# from sklearn import svm
-# from skimage import data, io, filters
 from collections import namedtuple
 
 from utils import utils, io
@@ -32,13 +30,6 @@ print(""" Dataset :: namedtuple(
    'dict_index_to_label' = dict to convert label_index -> label_name
    'dict_label_to_index'= dict to convert label_name -> label_index
 """)
-
-#     ['train' = ['img_name']
-#     , 'test' = ['img_name']
-#     , 'labels' = pandas.df('img_name','breed')
-#     , 'dict_index_to_label' = dict to convert label_index -> label_name
-#     , 'dict_label_to_index'= dict to convert label_name -> label_index
-#     """)
 
 
 def init_dataset():

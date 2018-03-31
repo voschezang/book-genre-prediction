@@ -1,14 +1,26 @@
+LOG_DIR := /tmp/ml_model_books
+
 start:
 	jupyter notebook src/
 
 logs:
-	tensorboard --logdir=/tmp/ml_model
+	rm -Rf $(LOG_DIR)/*
+	tensorboard --logdir=$(LOG_DIR)
+
+clear:
+	rm -r $(LOG_DIR)/*
+
+ls:
+	ls $(LOG_DIR)/
 
 install:
 	pip3 install -r requirements.txt
 
 install2:
 	pip install -r requirements.txt
+
+predict:
+	python3 src/main.py
 
 clean:
 	find . -name \*.pyc -delete
