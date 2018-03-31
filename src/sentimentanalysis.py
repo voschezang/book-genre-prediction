@@ -22,17 +22,39 @@ def make_lex_dict(lexicon_file):
     return lex_dict
 
 
-def return_sentiment_scores(sentence,analyser):
+def return_sentiment_scores(sentence, analyser):
     # return just the sentiment scores
     snt = analyser.polarity_scores(sentence)
     return snt
 
 
+def per_book(lines):
+    analyser = SentimentIntensityAnalyzer()
+    sub_pos_list = []
+    sub_neg_list = []
+    sub_neu_list = []
+    sub_comp_list = []
+    for line in lines:
+        scores = return_sentiment_scores(line, analyser)
+        # save sentiment scores
+        sub_neg_list.append(scores['neg'])
+        sub_neu_list.append(scores['neu'])
+        sub_pos_list.append(scores['pos'])
+        sub_comp_list.append(scores['compound'])
+
+    # then save average sentiment scores for each book
+    neg = sum(sub_neg_list) / float(len(sub_neg_list))
+    pos = sum(sub_pos_list) / float(len(sub_pos_list))
+    neu = sum(sub_neu_list) / float(len(sub_neu_list))
+    comp = sum(sub_comp_list) / float(len(sub_comp_list))
+    return (pos, neg, neu, comp)
+
 
 def sentiment_analysis(directory):
     analyser = SentimentIntensityAnalyzer()
     # returns the sentiment of every book in the directory
-    data = pd.read_csv(config.dataset_dir + 'output/final_data.csv', index_col=0)
+    data = pd.read_csv(
+        config.dataset_dir + 'output/final_data.csv', index_col=0)
     print(len(data.index))
     #     max_amt = len(data.index) + 2
     #     print(data.index, len(os.listdir(directory)))
@@ -51,7 +73,8 @@ def sentiment_analysis(directory):
 
         # if file is a textfile
         if filename.endswith(".txt"):
-            text = open(os.path.join(directory, filename), 'r', errors='replace')
+            text = open(
+                os.path.join(directory, filename), 'r', errors='replace')
             # for every line in the text
             for line in text.readlines():
                 scores = return_sentiment_scores(line, analyser)
@@ -90,7 +113,8 @@ def count_sentiment_words(directory, sent_dict):
     pos_list = []
     neg_list = []
 
-    data = pd.read_csv(config.dataset_dir + 'output/final_data.csv', index_col=0)
+    data = pd.read_csv(
+        config.dataset_dir + 'output/final_data.csv', index_col=0)
 
     for filename in data['filename']:
         sent_words_list = []
@@ -98,8 +122,11 @@ def count_sentiment_words(directory, sent_dict):
         neg_count = 0
 
         if filename.endswith(".txt"):
-            text = open(os.path.join(directory, filename), 'r', errors='replace')
-            sentiment_file = open(config.dataset_dir + 'output/sentiment_word_texts/' + filename, 'w')
+            text = open(
+                os.path.join(directory, filename), 'r', errors='replace')
+            sentiment_file = open(
+                config.dataset_dir + 'output/sentiment_word_texts/' + filename,
+                'w')
 
             for line in text.readlines():
                 for word in line.split(" "):
@@ -124,18 +151,23 @@ def count_sentiment_words(directory, sent_dict):
     return data
 
 
-count_sentiment_words(config.dataset_dir + 'bookdatabase/books/')
+# count_sentiment_words(config.dataset_dir + 'bookdatabase/books/')
 
 
 def create_wordcloud(scores, genre):
     font_path = config.dataset_dir + 'Open_Sans_Condensed/OpenSansCondensed-Light.ttf'
 
     try:
-        w = WordCloud(background_color='white', min_font_size=14, font_path=font_path, width=1000, height=500,
-                      relative_scaling=1, normalize_plurals=False)
+        w = WordCloud(
+            background_color='white',
+            min_font_size=14,
+            font_path=font_path,
+            width=1000,
+            height=500,
+            relative_scaling=1,
+            normalize_plurals=False)
         wordcloud = w.generate_from_frequencies(scores)
         wordcloud.recolor(color_func=grey_color_func)
-
 
     except ZeroDivisionError:
         return
@@ -147,9 +179,13 @@ def create_wordcloud(scores, genre):
     plt.close()
 
 
-def grey_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+def grey_color_func(word,
+                    font_size,
+                    position,
+                    orientation,
+                    random_state=None,
+                    **kwargs):
     return "hsl(0, 0%%, %d%%)" % random.randint(10, 50)
-
 
 
 def tfidf_per_genre(plot_wc=False):
@@ -173,13 +209,16 @@ def tfidf_per_genre(plot_wc=False):
             book_list.append(book)
 
         try:
-            tf_matrix, genre_tokens = tfidf.create_tf_matrix(directory, book_list, genre)
+            tf_matrix, genre_tokens = tfidf.create_tf_matrix(
+                directory, book_list, genre)
 
             for term in genre_tokens:
                 score = tfidf.tfidf(term, genre, directory, index, tf_matrix)
                 score_dict[term] = score
 
-            scores_file = open(config.dataset_dir + 'output/top200_per_genre/' + genre + '.txt', 'w')
+            scores_file = open(config.dataset_dir +
+                               'output/top200_per_genre/' + genre + '.txt',
+                               'w')
 
             for w in sorted(score_dict, key=score_dict.get, reverse=True):
                 scores_file.write('%s/n' % w)
@@ -200,4 +239,4 @@ def tfidf_per_genre(plot_wc=False):
 
 # return tfidf_dict_per_genre
 
-tfidf_dict_per_genre = tfidf_per_genre(plot_wc=True)
+# tfidf_dict_per_genre = tfidf_per_genre(plot_wc=True)

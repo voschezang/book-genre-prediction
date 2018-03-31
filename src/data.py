@@ -115,8 +115,8 @@ def decode_y(dataset, vector=[], n_best=1):
     else:
         # return n best label predicitions
         ls = list(dict_.items())
-        ls.sort(key=lambda x: x[1])
-        selected = ls[-1 * n_best:-1]
+        ls.sort(key=lambda x: x[1], reverse=True)
+        selected = ls[:n_best]
         return dict_, [label for label, s_ in selected]
 
 

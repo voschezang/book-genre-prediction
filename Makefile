@@ -13,21 +13,18 @@ clear:
 ls:
 	ls $(LOG_DIR)/
 
+deps:
+	pip3 install -r requirements.txt
+
 install:
 	pip3 install -r requirements.txt
 
-install2:
+deps2:
 	pip install -r requirements.txt
 
 predict:
-	python3 src/main.py
+	python3 src/main.py $(book)
 
 clean:
 	find . -name \*.pyc -delete
-
-cprofile:
-	python3 -m cProfile -o test/program.prof src/main.py
-
-snakeviz_:
-	snakeviz test/program.prof
 

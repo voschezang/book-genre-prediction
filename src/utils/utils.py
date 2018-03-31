@@ -88,3 +88,18 @@ def stem_conditionally(text='', stem_list=['']):
             if tokens in stem_list:
                 tokens = [tokens[0]]
     return intersperse(tokens, ' ')
+
+
+def format_score(score):
+    return round(score * 100, 2)
+
+
+def gen_table(th=[], trs=[]):
+    # :th :: (k,v)
+    # :rows :: [(k,v)]
+    ta = texttable.Texttable()
+    rows = [th]
+    for tr in trs:
+        rows.append(tr)
+    ta.add_rows(rows)
+    return ta.draw()

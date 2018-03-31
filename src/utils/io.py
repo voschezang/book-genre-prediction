@@ -24,8 +24,11 @@ def read_book2(filename):
 def read_book3(filename):
     with open(filename, 'r', errors='replace') as book:
         text = book.read()
-        lines = book.readlines()
     tokenized = tfidf.tokenize(text)
+    lines = []
+    with open(filename, 'r', errors='replace') as book:
+        for line in book.readlines():
+            lines.append(line)
     return tokenized, lines
 
 
