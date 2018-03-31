@@ -21,6 +21,8 @@ make predict book=~mybook.txt
 
 
 
+---
+
 If you do not have _pip3_.
 ```
 make deps2
