@@ -2,7 +2,6 @@ import os, sys, numpy as np
 import config
 os.chdir('src/')  # fix for data.init_dataset()
 np.random.seed(config.seed)
-print("NP - - -", np.random.random(2))
 
 import data, tfidf, models, sentimentanalysis
 from utils import utils, io
@@ -20,16 +19,14 @@ if __name__ == '__main__':
     if len(args) > 1:
         filename = '../' + args[1]
     else:
-        filename = config.dataset_dir + 'test/1027.txt'
+        filename = config.dataset_dir + '1118.txt'
 
     print('filename:', filename)
     tokens, lines = io.read_book3(filename)
-    print(tokens[:10])
 
     # build feature vector
     v1 = data.tokenlist_to_vector(tokens, dataset.sentiment_dataset)
     v2 = np.array(sentimentanalysis.per_book(lines))
-    print("V 1 :::::", v1[:10])
 
     x = np.append(v1, v2)
     x_test = np.stack([x])
@@ -48,14 +45,14 @@ if __name__ == '__main__':
     rows = []
     for k, v in ls:
         rows.append([k, utils.format_score(v)])
-    # print(utils.gen_table(th, rows))
+    print(utils.gen_table(th, rows))
 
     print('\n Top 5 genres:')
     th = ['#', 'Genre']
     rows = []
     for i, v in enumerate(best):
         rows.append([str(i + 1), v])
-    # print(utils.gen_table(th, rows))
+    print(utils.gen_table(th, rows))
 
     print('\n - \n')
     v = utils.format_score(results[best[0]])

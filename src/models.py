@@ -23,7 +23,6 @@ def load_model(filename, weights, v=False):
 
     # reset seed ?
     np.random.seed(config.seed)
-    print("NP - - -", np.random.random(2))
     optimizer = optimizers.Adam(lr=0.001)
     loaded_model.compile(
         loss="categorical_crossentropy",

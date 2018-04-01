@@ -13,8 +13,8 @@ Dataset = namedtuple('Dataset', [
     'sentiment_dataset'
 ])
 
-SubDataset = namedtuple('SubDataset',
-                        ['dict_index_to_label', 'dict_label_to_index'])
+SubDataset = namedtuple(
+    'SubDataset', ['dict_index_to_label', 'dict_label_to_index', 'word_list'])
 
 # ['train', 'test', 'labels', 'dict_index_to_label', 'dict_label_to_index'])
 
@@ -29,6 +29,7 @@ print(""" Dataset :: namedtuple(
  SubDataset :: namedtuple(
    'dict_index_to_label' = dict to convert label_index -> label_name
    'dict_label_to_index'= dict to convert label_name -> label_index
+   'word_list' = raw word list
 """)
 
 
@@ -67,9 +68,10 @@ def init_sub_dataset(word_list):
     # create a label dicts to convert labels to numerical data and vice versa
     # the order is arbitrary, as long as we can convert them back to the original classnames
     # unique_labels = set(labels['breed'])
+    word_list = sorted(word_list)
     dict_index_to_label_ = dict_index_to_label(word_list)
     dict_label_to_index_ = dict_label_to_index(word_list)
-    return SubDataset(dict_index_to_label_, dict_label_to_index_)
+    return SubDataset(dict_index_to_label_, dict_label_to_index_, word_list)
 
 
 def extract_genres(info, book_list):
@@ -135,9 +137,8 @@ def y_to_label_dict(dataset, vector=[]):
 def tokenlist_to_vector(tokens, sub_dataset):
     # TODO depending on len(tokens)
     selected_words = list(sub_dataset.dict_label_to_index.keys())
+    selected_words = sub_dataset.word_list
     n = len(selected_words)
-    # print('\n\n\n\n\n\n\n tokenlist to vector')
-    # print(selected_words)
     if n < 1:
         return None
     counter = collections.Counter(tokens)
@@ -173,15 +174,15 @@ def textlabels_to_numerical(dataset, labels):
 def dict_index_to_label(labels):
     # labels :: list or set()
     # return { int: label }
-    unique_labels3 = set(labels)
-    return {k: v for k, v in enumerate(unique_labels3)}
+    unique_labels = sorted(set(labels))
+    return collections.OrderedDict({k: v for k, v in enumerate(unique_labels)})
 
 
 def dict_label_to_index(labels):
     # labels :: list or set()
     # return { label: int }
-    unique_labels = set(labels)
-    return {k: v for v, k in enumerate(unique_labels)}
+    unique_labels = sorted(set(labels))
+    return collections.OrderedDict({k: v for v, k in enumerate(unique_labels)})
 
 
 def get_label(name='123.txt', labels=[]):

@@ -55,9 +55,6 @@ def sentiment_analysis(directory):
     # returns the sentiment of every book in the directory
     data = pd.read_csv(
         config.dataset_dir + 'output/final_data.csv', index_col=0)
-    print(len(data.index))
-    #     max_amt = len(data.index) + 2
-    #     print(data.index, len(os.listdir(directory)))
     pos_list = []
     neg_list = []
     neu_list = []
