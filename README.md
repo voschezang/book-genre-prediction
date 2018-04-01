@@ -26,9 +26,10 @@ make predict book=~mybook.txt
 
 ---
 
-If you do not have _pip3_.
+If you do not have _pip3_, you can try:
 ```
 make deps2
+python src/main.py mybook
 ```
 
 
