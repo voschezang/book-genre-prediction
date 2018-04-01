@@ -21,7 +21,7 @@ if __name__ == '__main__':
     else:
         filename = config.dataset_dir + '1118.txt'
 
-    print('filename:', filename)
+    print('\n filename:', filename)
     tokens, lines = io.read_book3(filename)
 
     # build feature vector

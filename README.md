@@ -2,7 +2,7 @@
 
 Genre prediction on novels. This project uses the Gutenberg dataset.
 
-This repository does not include the dataset itself. Download the dataset [here](https://drive.google.com/file/d/1J2gBeq8sOdePKzx8_VZ46PRm7-TcMh9B/view?usp=sharing).
+This repository does not include the dataset itself. Download the dataset [here](https://drive.google.com/file/d/1iO-skvTyxQ0YnVUNfoRC7nMLtXHDxNRl/view?usp=sharing).
 
 ## Run
 
@@ -13,7 +13,7 @@ cd books
 make deps
 ```
 
-Run the predictor. `_book_` should be a _.txt_ file. E.g. _`book=datasets/test/12.txt`_.
+Run the predictor. `_book_` should be a _.txt_ file. E.g. _`book=datasets/test/1118.txt`_.
 
 ```
 make predict book=~mybook.txt

@@ -1,7 +1,6 @@
 import numpy as np
 import config  # incl. random seed
 np.random.seed(config.seed)
-print("NP - - -", np.random.random(2))
 # import nn libs
 import keras
 from keras.utils import to_categorical
