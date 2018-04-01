@@ -1,7 +1,10 @@
 import os, sys, numpy as np
+import config
 os.chdir('src/')  # fix for data.init_dataset()
+np.random.seed(config.seed)
+print("NP - - -", np.random.random(2))
 
-import data, config, tfidf, models, sentimentanalysis
+import data, tfidf, models, sentimentanalysis
 from utils import utils, io
 
 # info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
@@ -15,10 +18,12 @@ model = models.load_model(m, w)
 
 if __name__ == '__main__':
     args = sys.argv
-    if args:
+    if len(args) > 1:
         filename = '../' + args[1]
-        # filename = config.dataset_dir + 'test/12.txt'
+    else:
+        filename = config.dataset_dir + 'test/12.txt'
 
+    print('filename:', filename)
     tokens, lines = io.read_book3(filename)
 
     # build feature vector
@@ -54,3 +59,18 @@ if __name__ == '__main__':
     v = utils.format_score(results[best[0]])
     print('Predicted genre: "%s" with a score of %s%s \n\n' % (best[0], v,
                                                                '%'))
+
+    for x in range(3):
+        import data, tfidf, models, sentimentanalysis
+        from utils import utils, io
+        dataset = data.init_dataset()
+        dataset.info.keys()
+        tokens, lines = io.read_book3(filename)
+        v1 = data.tokenlist_to_vector(tokens, dataset.sentiment_dataset)
+        v2 = np.array(sentimentanalysis.per_book(lines))
+        x = np.append(v1, v2)
+        x_test = np.stack([x])
+        model = models.load_model(m, w)
+        y_test = model.predict(x_test)[0]
+        results, best = data.decode_y(dataset, y_test, 6)
+        print(best)

@@ -1,7 +1,7 @@
 """ Functions that are specific to our dataset
 """
-import pandas, collections, os
-import sklearn, skimage, skimage.io, pandas, numpy as np
+import pandas, collections, os, numpy as np
+import pandas
 import keras.utils
 from collections import namedtuple
 

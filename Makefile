@@ -27,4 +27,3 @@ predict:
 
 clean:
 	find . -name \*.pyc -delete
-

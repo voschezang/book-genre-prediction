@@ -1,5 +1,8 @@
 """ Project parameters & config
 """
+import numpy as np
+seed = 7
+# np.random.seed(seed)
 
 tmp_model_dir = '/tmp/ml_model_books'  # see Makefile/logs
 

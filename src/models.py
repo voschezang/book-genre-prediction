@@ -1,36 +1,35 @@
+import numpy as np
+import config  # incl. random seed
+np.random.seed(config.seed)
+print("NP - - -", np.random.random(2))
 # import nn libs
-import keras, numpy as np
-from sklearn.decomposition import PCA
+import keras
 from keras.utils import to_categorical
 from keras.models import Sequential, model_from_json
 from keras import optimizers
-from keras.layers import Dense, Activation
-from keras.optimizers import SGD, Adam
-
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout, Flatten
-
+from keras.layers import Dense, Dropout, Flatten
 from keras.models import Model
 
 import data
 
 
-def load_model(filename, weights):
+def load_model(filename, weights, v=False):
     with open(filename, 'r') as json:  # cnn_transfer_augm
         loaded_model_json = json.read()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
     loaded_model.load_weights(weights)
-    print("Loaded model from disk")
+    if v: print("Loaded model from disk")
+
+    # reset seed ?
+    np.random.seed(config.seed)
+    print("NP - - -", np.random.random(2))
     optimizer = optimizers.Adam(lr=0.001)
     loaded_model.compile(
         loss="categorical_crossentropy",
         optimizer=optimizer,
-        metrics=[
-            'accuracy', 'mean_squared_error', 'categorical_crossentropy',
-            'top_k_categorical_accuracy'
-        ])
-    print('compiled model')
+        metrics=['accuracy'])
+    if v: print('compiled model')
     return loaded_model
 
 
