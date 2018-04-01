@@ -40,13 +40,23 @@ def read_unique_genres():
 def read_sw_per_genre(amt=1000, dirname='top200_per_genre/'):
     dirname = config.dataset_dir + dirname
     result = []
-    for file in os.listdir(dirname):
-        if not file == '_DS_Store':
-            text = open(dirname + file, 'r', errors='replace').read()
-            words = text.split('/n')
+
+    print('\n\n\n\n\n\n\n sw dataset')
+
+    for file_ in os.listdir(dirname):
+        if not file_ == '_DS_Store':
+            with open(dirname + file_, 'r', errors='replace') as ls:
+                text = ls.read()
+                # text = open(dirname + file_, 'r', errors='replace').read()
+                words = text.split('/n')
             # save n words per file
             for w in words[:amt]:
                 result.append(w)
+    print(result[:20])
+    print('<<><<<<')
+    for x in range(3):
+        a = set(result[:10])
+        print(list(a)[:20])
     return set(result)
 
 

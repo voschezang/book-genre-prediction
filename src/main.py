@@ -9,7 +9,6 @@ from utils import utils, io
 
 # info = pandas.read_csv(config.dataset_dir + 'final_data.csv')
 dataset = data.init_dataset()
-dataset.info.keys()
 
 # load model
 m = config.dataset_dir + 'models/default_model.json'
@@ -21,14 +20,17 @@ if __name__ == '__main__':
     if len(args) > 1:
         filename = '../' + args[1]
     else:
-        filename = config.dataset_dir + 'test/12.txt'
+        filename = config.dataset_dir + 'test/1027.txt'
 
     print('filename:', filename)
     tokens, lines = io.read_book3(filename)
+    print(tokens[:10])
 
     # build feature vector
     v1 = data.tokenlist_to_vector(tokens, dataset.sentiment_dataset)
     v2 = np.array(sentimentanalysis.per_book(lines))
+    print("V 1 :::::", v1[:10])
+
     x = np.append(v1, v2)
     x_test = np.stack([x])
 
@@ -46,31 +48,42 @@ if __name__ == '__main__':
     rows = []
     for k, v in ls:
         rows.append([k, utils.format_score(v)])
-    print(utils.gen_table(th, rows))
+    # print(utils.gen_table(th, rows))
 
     print('\n Top 5 genres:')
     th = ['#', 'Genre']
     rows = []
     for i, v in enumerate(best):
         rows.append([str(i + 1), v])
-    print(utils.gen_table(th, rows))
+    # print(utils.gen_table(th, rows))
 
     print('\n - \n')
     v = utils.format_score(results[best[0]])
     print('Predicted genre: "%s" with a score of %s%s \n\n' % (best[0], v,
                                                                '%'))
 
-    for x in range(3):
-        import data, tfidf, models, sentimentanalysis
-        from utils import utils, io
-        dataset = data.init_dataset()
-        dataset.info.keys()
-        tokens, lines = io.read_book3(filename)
-        v1 = data.tokenlist_to_vector(tokens, dataset.sentiment_dataset)
-        v2 = np.array(sentimentanalysis.per_book(lines))
-        x = np.append(v1, v2)
-        x_test = np.stack([x])
-        model = models.load_model(m, w)
-        y_test = model.predict(x_test)[0]
-        results, best = data.decode_y(dataset, y_test, 6)
-        print(best)
+    # for x in range(3):
+    #     # import os, sys, numpy as np
+    #     # import config
+    #     # np.random.seed(config.seed)
+    #     # print("NP - - -", np.random.random(2))
+
+    #     # import data, tfidf, models, sentimentanalysis
+    #     # from utils import utils, io
+    #     # dataset = data.init_dataset()
+    #     # tokens, lines = io.read_book3(filename)
+
+    #     v1_ = data.tokenlist_to_vector(tokens, dataset.sentiment_dataset)
+    #     print("V - :::::", v1_[:20])
+    #     for i, val in enumerate(v1):
+    #         if not val == v1_[i]:
+    #             print('not eq', val, v1_[i])
+
+    #     v1 = data.tokenlist_to_vector(tokens, dataset.sentiment_dataset)
+    #     v2 = np.array(sentimentanalysis.per_book(lines))
+    #     x = np.append(v1, v2)
+    #     x_test = np.stack([x])
+    #     model = models.load_model(m, w)
+    #     y_test = model.predict(x_test)[0]
+    #     results, best = data.decode_y(dataset, y_test, 6)
+    #     print(best)

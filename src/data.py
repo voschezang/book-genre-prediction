@@ -51,8 +51,11 @@ def init_dataset():
 
     # feature selection
     # 1. tfidf on sentiment words (most important sentiment words that define genres)
-    sentiment_words = io.read_sw_per_genre(
-        amt=1000, dirname='top200_per_genre/')
+    # sentiment_words = io.read_sw_per_genre(amt=1000, dirname='top200_per_genre/')
+    # dict_ = {'sentiment_words': list(sentiment_words)}
+    # io.save_dict_to_csv(config.dataset_dir, 'top_sentiment_words', dict_)
+    df = pandas.read_csv(config.dataset_dir + 'top_sentiment_words.csv')
+    sentiment_words = list(df['sentiment_words'])
     sentiment_dataset = init_sub_dataset(sentiment_words)
 
     # return data as a namedtuple
@@ -133,6 +136,8 @@ def tokenlist_to_vector(tokens, sub_dataset):
     # TODO depending on len(tokens)
     selected_words = list(sub_dataset.dict_label_to_index.keys())
     n = len(selected_words)
+    # print('\n\n\n\n\n\n\n tokenlist to vector')
+    # print(selected_words)
     if n < 1:
         return None
     counter = collections.Counter(tokens)
@@ -181,7 +186,12 @@ def dict_label_to_index(labels):
 
 def get_label(name='123.txt', labels=[]):
     # labels :: pandas.df :: { id: breed }
-    return labels[name][0]
+    try:
+        label = labels[name][0]
+    except:
+        print('[WARNING] unkown genre !!!')
+        label = config.default_genre_value
+    return label
 
 
 def normalize_genre(g='horror'):

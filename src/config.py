@@ -10,6 +10,7 @@ dataset_dir = '../datasets/'
 src_dir = '../src/'
 
 sentiment_words_dir = dataset_dir + 'sentiment_word_texts/'
+# train_test_dir = dataset_dir + 'output/'
 info_file = dataset_dir + 'new_final_data.csv'
 
 default_genre_value = 'unknown'
