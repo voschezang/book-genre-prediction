@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     # predict y
     y_test = model.predict(x_test)[0]
-    results, best = data.decode_y(dataset, y_test, 6)
+    results, best = data.decode_y(dataset, y_test, 5)
 
     print("-----------------------------\n\n")
     print("-- Results --")
