@@ -8,7 +8,9 @@ The code has been tested on _macOS High Sierra_, _Ubuntu_ and _'Ubuntu subsystem
 
 ## Run
 
-Make sure _python3_ and _pip3_ are installed. All dependencies will be installed by pip.
+Make sure _python3_ and _pip3_ are installed. All dependencies will be installed by pip. If you encounter permission errors, you might have to run `sudo make deps`.
+
+Not al Linux disto's come with _python-tk_. To install it, run _`sudo apt install python-tk`_.
 
 ```
 git clone https://github.com/voschezang/books.git
