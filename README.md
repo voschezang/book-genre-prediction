@@ -16,6 +16,13 @@ cd books
 make deps
 ```
 
+Run a prediction on a sample book. The result should by 'histor'. Note that all output genres are abbreviated.
+
+```
+make predict
+```
+
+
 Run the predictor. `_book_` should be a _.txt_ file. E.g. _`book=datasets/test/1118.txt`_.
 
 ```
