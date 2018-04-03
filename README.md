@@ -4,7 +4,7 @@ Genre prediction on novels. This project uses the Gutenberg dataset.
 
 This repository does not include the dataset itself. If you want to train your own model, download the dataset [here](https://drive.google.com/file/d/1iO-skvTyxQ0YnVUNfoRC7nMLtXHDxNRl/view?usp=sharing).
 
-The code has been tested on macOS High Sierra and 'Ubuntu subsystem for windows'. 
+The code has been tested on _macOS High Sierra_, _Ubuntu_ and _'Ubuntu subsystem for windows'_. 
 
 ## Run
 

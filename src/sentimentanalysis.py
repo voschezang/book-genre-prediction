@@ -3,8 +3,6 @@ import os
 from nltk.tokenize import sent_tokenize
 import pandas as pd
 from wordcloud import WordCloud
-from PIL import Image
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 import config
